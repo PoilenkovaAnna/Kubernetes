@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: todos
+  labels:
+    app: todos
+spec:
+  ports:
+    - port: 3000
+  selector:
+    app: todos
+    tier: frontend
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wp-pv-claim
+  labels:
+    app: todos
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos
+  labels:
+    app: todos
+spec:
+  selector:
+    matchLabels:
+      app: todos
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: todos
+        tier: frontend
+    spec:
+      containers:
+      - image: app
+        imagePullPolicy: IfNotPresent
+        name: todos
+        env:
+        - name: MYSQL_HOST
+          value: todos-mysql
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        - name: MYSQL_USER
+          value: todos
+        - name: MYSQL_DB
+          value: todos
+        ports:
+        - containerPort: 3000
+          name: todos
+        volumeMounts:
+        - name: todos-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: todos-persistent-storage
+        persistentVolumeClaim:
+          claimName: wp-pv-claim

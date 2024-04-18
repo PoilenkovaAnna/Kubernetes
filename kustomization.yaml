@@ -1,0 +1,9 @@
+resources:
+  - mysql-deployment.yaml
+  - app-deployment.yaml
+
+secretGenerator:
+- name: mysql-pass
+  literals:
+  - password="11111"
+
