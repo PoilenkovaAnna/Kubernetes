@@ -7,3 +7,64 @@
 
 ## Описание задания
 Реализовать приложение (к примеру с использованием python Flask), запустить его внутри контейнера. Развернуть БД mysql (или redis) внутри другого контейнера. Контейнеры собирать и запускать посредством Dockerfile (файл с описанием контейнера). Необходимо развернуть сервис, состоящий из этих двух контейнеров, посредством конфигурационного файла для K8s, описывающего поды. Развертываться поды должны на локальной машине посредством Minikube, который является урезанной версией K8s, адаптированной к развертыванию на одном хосте.
+
+
+# Выполнение
+В качестве приложения используется простой TODO менеджер
+![Снимок экрана 2024-03-26 в 20 33 42](https://github.com/PoilenkovaAnna/ContainerVirtualizationBasics1/assets/55884243/afb83ad0-fcdc-4917-89b5-09f1c5d62f5c)
+
+
+### Запуск minikuber 
+
+```
+minikube start --driver=vmware --insecure-registry true
+```
+
+
+### Сборка образов:
+
+
+базы данных 
+``` 
+docker build  -f db_dockerfile -t db .
+```
+
+
+приложения 
+``` 
+docker build -t app .
+```
+#
+# Команды для minikube
+
+```
+kubectl apply -k ./  
+```
+
+```
+kubectl get pods                                       
+kubectl get deployments
+kubectl get services
+```
+
+```
+kubectl delete -k ./ 
+```
+
+
+### Просмотр базы данных 
+``` 
+docker exec -it [id-container] mysql -p todos
+
+```
+запрос в базе
+``` 
+select * from todo_items;
+```
+
+
+Изменение Database после взаимодействия с приложением:
+- Выполнение одной из задач в TODO списке
+![Снимок экрана 2024-04-18 в 03 37 30](https://github.com/PoilenkovaAnna/Kubernetes/assets/55884243/573d36e1-4f28-4901-a2db-9f3796958566)
+
+
